@@ -31,6 +31,7 @@
         </activity>
         <activity android:name=".MyDeviceControlActivity" >
         </activity>
+        <activity android:name=".BLEShowDataActivity"></activity>
 
         <service
             android:name=".MyBLEService"

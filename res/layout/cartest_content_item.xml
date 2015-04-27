@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_realtime_lay"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/shape_corners_all" >
+
+    <TextView
+        android:id="@+id/itemNameTx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:text="itemName:   "
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/itemCheckedPic"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:paddingRight="5dp"
+        android:src="@drawable/ic_launcher"
+        android:paddingTop="5dp"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="20dp" >
+
+        <TextView
+            android:id="@+id/itemValueTx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="itemValue"
+            android:textSize="50sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/unitTx"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:text="unit"
+        android:textSize="14sp" />
+
+</RelativeLayout>

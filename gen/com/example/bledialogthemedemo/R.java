@@ -25,38 +25,50 @@ public final class R {
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
+        public static final int check_mark=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int shape_corners_all=0x7f020002;
+        public static final int shape_corners_all_dark=0x7f020003;
+        public static final int uncheck_mark=0x7f020004;
     }
     public static final class id {
-        public static final int action_settings=0x7f090010;
-        public static final int button1=0x7f090001;
-        public static final int connection_state=0x7f090006;
-        public static final int data_value=0x7f090007;
-        public static final int data_value2=0x7f09000a;
-        public static final int data_value3=0x7f09000b;
-        public static final int device_address=0x7f090005;
-        public static final int device_name=0x7f09000c;
-        public static final int gatt_services_list=0x7f090008;
-        public static final int list1=0x7f090002;
-        public static final int menu_connect=0x7f09000e;
-        public static final int menu_disconnect=0x7f09000f;
-        public static final int menu_refresh=0x7f09000d;
-        public static final int menu_scan=0x7f090012;
-        public static final int menu_settings=0x7f090011;
-        public static final int menu_stop=0x7f090013;
-        public static final int scan_btn=0x7f090003;
-        public static final int sent_btn=0x7f090004;
-        public static final int startListenBtn=0x7f090009;
-        public static final int textView1=0x7f090000;
+        public static final int action_settings=0x7f090017;
+        public static final int button1=0x7f090002;
+        public static final int button2=0x7f090003;
+        public static final int connection_state=0x7f09000d;
+        public static final int data_value=0x7f09000e;
+        public static final int data_value2=0x7f090011;
+        public static final int data_value3=0x7f090012;
+        public static final int device_address=0x7f09000c;
+        public static final int device_name=0x7f090013;
+        public static final int gatt_services_list=0x7f09000f;
+        public static final int gridView1=0x7f090000;
+        public static final int itemCheckedPic=0x7f090008;
+        public static final int itemNameTx=0x7f090007;
+        public static final int itemValueTx=0x7f090009;
+        public static final int item_realtime_lay=0x7f090006;
+        public static final int list1=0x7f090004;
+        public static final int menu_connect=0x7f090015;
+        public static final int menu_disconnect=0x7f090016;
+        public static final int menu_refresh=0x7f090014;
+        public static final int menu_scan=0x7f090019;
+        public static final int menu_settings=0x7f090018;
+        public static final int menu_stop=0x7f09001a;
+        public static final int scan_btn=0x7f090005;
+        public static final int sent_btn=0x7f09000b;
+        public static final int startListenBtn=0x7f090010;
+        public static final int textView1=0x7f090001;
+        public static final int unitTx=0x7f09000a;
     }
     public static final class layout {
         public static final int actionbar_indeterminate_progress=0x7f030000;
-        public static final int activity_main=0x7f030001;
-        public static final int activity_scan=0x7f030002;
-        public static final int gatt_service_characteristic=0x7f030003;
-        public static final int gatt_service_characteristic_v2=0x7f030004;
-        public static final int gatt_service_characteristic_v3=0x7f030005;
-        public static final int listitem_device=0x7f030006;
+        public static final int activity_bledata=0x7f030001;
+        public static final int activity_main=0x7f030002;
+        public static final int activity_scan=0x7f030003;
+        public static final int cartest_content_item=0x7f030004;
+        public static final int gatt_service_characteristic=0x7f030005;
+        public static final int gatt_service_characteristic_v2=0x7f030006;
+        public static final int listitem_device=0x7f030007;
     }
     public static final class menu {
         public static final int gatt_services=0x7f080000;

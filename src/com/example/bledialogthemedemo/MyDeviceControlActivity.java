@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
@@ -130,6 +131,22 @@ public class MyDeviceControlActivity extends Activity {
 						intent.getStringExtra(MyBLEService.EXTRA_DATA));
 				displayData(mDataField2,
 						intent.getStringExtra(MyBLEService.EXTRA_DATA2));
+
+				// TODO
+				/*
+				 * 注意此处修改为Activity和Fragment之间传递数据的方式
+				 * 不用Intent, intent是用在Activity之间传递数据的
+				 */
+				Intent bleDataIntent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putString("BLEData1",
+						intent.getStringExtra(MyBLEService.EXTRA_DATA));
+				bundle.putString("BLEData2",
+						intent.getStringExtra(MyBLEService.EXTRA_DATA2));
+				bleDataIntent.putExtras(bundle);
+				bleDataIntent.setClass(MyDeviceControlActivity.this,
+						BLEShowDataActivity.class);
+				startActivity(bleDataIntent);
 			}
 		}
 	};

@@ -37,6 +37,16 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		
+		findViewById(R.id.button2).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent();
+				intent.setClass(MainActivity.this, BLEShowDataActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 
 	@Override
