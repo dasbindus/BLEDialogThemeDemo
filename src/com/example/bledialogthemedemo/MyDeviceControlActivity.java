@@ -70,7 +70,7 @@ public class MyDeviceControlActivity extends Activity {
 			.fromString("6a400004-b5a3-f393-e0a9-e50e24dcca9e");
 
 	private Handler mHandler;
-	private byte[] startCmd_test = { 0x01, (byte) 0xe0 };
+	private byte[] startCmd_test = { 0x01, (byte) 0xff };
 	private byte[] stopCmd = { (byte) 0xff, (byte) 0xff };
 	/**
 	 * 管理Service的生命周期

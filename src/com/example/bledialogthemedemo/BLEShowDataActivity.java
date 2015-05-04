@@ -56,7 +56,7 @@ public class BLEShowDataActivity extends Activity {
 	public UUID mSpdUuid = UUID
 			.fromString("6a400004-b5a3-f393-e0a9-e50e24dcca9e");
 
-	private byte[] startCmd_test = { 0x01, (byte) 0xe0 };
+	private byte[] startCmd_test = { 0x01, (byte) 0xff };
 	private byte[] stopCmd = { (byte) 0xff, (byte) 0xff };
 
 	/**
@@ -133,7 +133,6 @@ public class BLEShowDataActivity extends Activity {
 					} else {
 						valueTx.setText("--");
 					}
-
 				}
 			}
 		}

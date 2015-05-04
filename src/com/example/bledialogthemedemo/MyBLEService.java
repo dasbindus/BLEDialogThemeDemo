@@ -164,56 +164,87 @@ public class MyBLEService extends Service {
 	private void broadcastUpdate(final String action,
 			final BluetoothGattCharacteristic characteristic) {
 		final Intent intent = new Intent(action);
-		final byte[] carData = characteristic.getValue();
 		UUID keyUuid = characteristic.getUuid();
-
-		String carTestDataStr = new String(carData);
-		String[] params = carTestDataStr.split(" ");
-		int A = Integer.parseInt(params[0], 16);
-		int B = Integer.parseInt(params[1], 16);
 
 		// 处理RPM数据
 		if (UUID_RPM_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
+			int B = Integer.parseInt(params[1], 16);
 			// 处理接收数据为10进制（由于receiver接收String类型，所以使用"" + int）
 			intent.putExtra(EXTRA_DATA, "" + (((A * 256) + B) / 4));
+			System.out.println("RPM: " + carTestDataStr);
 		}
 		// 处理SPD数据
 		if (UUID_SPD_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
 			intent.putExtra(EXTRA_DATA2, "" + A);
+			System.out.println("SPD: " + carTestDataStr);
 		}
 		// 处理MAF数据
 		if (UUID_MAF_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
+			int B = Integer.parseInt(params[1], 16);
 			intent.putExtra(EXTRA_DATA3, "" + (((A * 256) + B) / 100));
+			System.out.println("MAF: " + carTestDataStr);
 		}
 		// 处理ECT数据
 		if (UUID_ECT_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
 			intent.putExtra(EXTRA_DATA4, "" + (A - 40));
+			System.out.println("ECT: " + carTestDataStr);
 		}
 		// 处理MAP数据
 		if (UUID_MAP_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
 			intent.putExtra(EXTRA_DATA5, "" + A);
+			System.out.println("MAP: " + carTestDataStr);
 		}
 		// 处理O1V数据
 		if (UUID_O1V_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
+			int B = Integer.parseInt(params[1], 16);
 			intent.putExtra(EXTRA_DATA6, "" + ((B - 128) * 100 / 128));
+			System.out.println("O1V: " + carTestDataStr);
 		}
 		// 处理FCR数据
 		if (UUID_FCR_DATA.equals(keyUuid)) {
+			final byte[] carData = characteristic.getValue();
+			String carTestDataStr = new String(carData);
+			String[] params = carTestDataStr.split(" ");
+			int A = Integer.parseInt(params[0], 16);
+			int B = Integer.parseInt(params[1], 16);
 			intent.putExtra(EXTRA_DATA7, "" + (((A * 256) + B) / 20));
+			System.out.println("FCR: " + carTestDataStr);
+		} else {
+			// 若UUID不符合，则处理为HEX
+			final byte[] data = characteristic.getValue();
+			if (data != null && data.length > 0) {
+				final StringBuilder stringBuilder = new StringBuilder(
+						data.length);
+				for (byte byteChar : data)
+					stringBuilder.append(String.format("%02X ", byteChar));
+				intent.putExtra(EXTRA_DATA3, new String(data) + "\n"
+						+ stringBuilder.toString());
+			}
 		}
-
-		// else {
-		// // 若UUID不符合，则处理为HEX
-		// final byte[] data = characteristic.getValue();
-		// if (data != null && data.length > 0) {
-		// final StringBuilder stringBuilder = new StringBuilder(
-		// data.length);
-		// for (byte byteChar : data)
-		// stringBuilder.append(String.format("%02X ", byteChar));
-		// intent.putExtra(EXTRA_DATA3, new String(data) + "\n"
-		// + stringBuilder.toString());
-		// }
-		// }
 		sendBroadcast(intent);
 	}
 
