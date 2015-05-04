@@ -134,8 +134,8 @@ public class MyDeviceControlActivity extends Activity {
 
 				// TODO
 				/*
-				 * 注意此处修改为Activity和Fragment之间传递数据的方式
-				 * 不用Intent, intent是用在Activity之间传递数据的
+				 * 注意此处修改为Activity和Fragment之间传递数据的方式 不用Intent,
+				 * intent是用在Activity之间传递数据的
 				 */
 				Intent bleDataIntent = new Intent();
 				Bundle bundle = new Bundle();
@@ -143,6 +143,7 @@ public class MyDeviceControlActivity extends Activity {
 						intent.getStringExtra(MyBLEService.EXTRA_DATA));
 				bundle.putString("BLEData2",
 						intent.getStringExtra(MyBLEService.EXTRA_DATA2));
+				bundle.putBoolean("connectStat", mConnected);
 				bleDataIntent.putExtras(bundle);
 				bleDataIntent.setClass(MyDeviceControlActivity.this,
 						BLEShowDataActivity.class);

@@ -4,21 +4,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+import android.widget.Toast;
 
 public class BLEShowDataActivity extends Activity {
 
+	private Button listenBtn;
 	private GridView gridView;
 	private List<Map<String, Object>> listItems;
 	private ImageView selectPic;
@@ -33,6 +44,20 @@ public class BLEShowDataActivity extends Activity {
 	String[] bleData = new String[6];
 	String[] bleDataTest = new String[] { "7680", "31", "238", "164", "3.61",
 			"45.7" };
+
+	private boolean mConnected = false;
+	private boolean isListening = false;
+	private BluetoothGattCharacteristic mNotifyCharacteristic;
+
+	public UUID mWriteCmdUuid = UUID
+			.fromString("6a400002-b5a3-f393-e0a9-e50e24dcca9e");
+	public UUID mRpmUuid = UUID
+			.fromString("6a400003-b5a3-f393-e0a9-e50e24dcca9e");
+	public UUID mSpdUuid = UUID
+			.fromString("6a400004-b5a3-f393-e0a9-e50e24dcca9e");
+
+	private byte[] startCmd_test = { 0x01, (byte) 0xe0 };
+	private byte[] stopCmd = { (byte) 0xff, (byte) 0xff };
 
 	/**
 	 * GridView的Item的check状态表
@@ -59,34 +84,91 @@ public class BLEShowDataActivity extends Activity {
 		return result;
 	}
 
+	/**
+	 * 显示接收的数据
+	 * 
+	 * @param textView
+	 * @param data
+	 */
+	private void displayData(TextView textView, String data) {
+		if (data != null) {
+			textView.setText(data);
+		}
+	}
+
+	/**
+	 * 广播接收
+	 */
+	private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+			if (MyBLEService.ACTION_GATT_CONNECTED.equals(action)) {
+				mConnected = true;
+				Toast.makeText(BLEShowDataActivity.this, "蓝牙已连接！",
+						Toast.LENGTH_SHORT).show();
+			} else if (MyBLEService.ACTION_GATT_DISCONNECTED.equals(action)) {
+				mConnected = false;
+				Toast.makeText(BLEShowDataActivity.this, "蓝牙已断开！",
+						Toast.LENGTH_SHORT).show();
+			} else if (MyBLEService.ACTION_GATT_SERVICES_DISCOVERED
+					.equals(action)) {
+				Toast.makeText(BLEShowDataActivity.this,
+						"GATT SERVICE DISCOVERED.", Toast.LENGTH_SHORT).show();
+			} else if (MyBLEService.ACTION_DATA_AVAILABLE.equals(action)) {
+				// 向values中赋予获取的值
+				values[0] = intent.getStringExtra(MyBLEService.EXTRA_DATA2);
+				values[1] = intent.getStringExtra(MyBLEService.EXTRA_DATA);
+
+				// 循环获取GridView中所有Item，并且显示数据
+				for (int i = 0; i < values.length; i++) {
+					valueTx = (TextView) gridView.getChildAt(i).findViewById(
+							R.id.itemValueTx);
+					if (mConnected && !checkStatLookUp(i)) {
+						displayData(valueTx, values[i]);
+					} else {
+						valueTx.setText("--");
+					}
+
+				}
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bledata);
 
+		listenBtn = (Button) findViewById(R.id.listenBtn);
+		listenBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO 结合链接状态判断是否开始监听
+				if (!isListening) {
+					listenBtn.setText("停止监听");
+					// writeCmd(mWriteCmdUuid, startCmd_test);
+					isListening = true;
+				} else {
+					listenBtn.setText("开始监听");
+					// writeCmd(mWriteCmdUuid, stopCmd);
+					isListening = false;
+				}
+			}
+		});
+
 		listItems = new ArrayList<Map<String, Object>>();
 		// 获取MyDeviceControlActivity传递的数据
-		// Intent intent = getIntent();
-		// Bundle bundle = intent.getExtras();
-		// String data1 = bundle.getString("BLEData1");
-		// String data2 = bundle.getString("BLEData2");
-		String data1 = "rpm";
-		String data2 = "spd";
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		String data1 = bundle.getString("BLEData1");
+		String data2 = bundle.getString("BLEData2");
+		mConnected = bundle.getBoolean("connectStat");
 
-		// ------向values中赋予获取的值-------//
-		for (int i = 0; i < values.length; i++) {
-			// values[i] = bleData[i];
-			values[i] = bleDataTest[i];
-		}
 		// ------------//
 
 		// 将数据放入listItems
-		// Map<String, Object> listItem = new HashMap<String, Object>();
-		// listItem.put("rpm", data1);
-		// listItem.put("spd", data2);
-		// listItems.add(listItem);
-
 		for (int i = 0; i < names.length; i++) {
 			Map<String, Object> listItem = new HashMap<String, Object>();
 			listItem.put("name", names[i]);
@@ -127,5 +209,46 @@ public class BLEShowDataActivity extends Activity {
 				}
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		unregisterReceiver(mGattUpdateReceiver);
+	}
+
+	/**
+	 * 向指定UUID中写指令
+	 * 
+	 * @param uuid
+	 */
+	private void writeCmd(UUID uuid, byte cmd[]) {
+		MyBLEService mBleService = new MyBLEService();
+		BluetoothGattService service = mBleService.getSupportedGattServices()
+				.get(2);
+		BluetoothGattCharacteristic characteristic = service
+				.getCharacteristic(uuid);
+		characteristic.setValue(cmd);
+		mBleService.writeCharacteristic(characteristic);
+	}
+
+	/**
+	 * IntentFilter
+	 * 
+	 * @return
+	 */
+	private static IntentFilter makeGattUpdateIntentFilter() {
+		final IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(MyBLEService.ACTION_GATT_CONNECTED);
+		intentFilter.addAction(MyBLEService.ACTION_GATT_DISCONNECTED);
+		intentFilter.addAction(MyBLEService.ACTION_GATT_SERVICES_DISCOVERED);
+		intentFilter.addAction(MyBLEService.ACTION_DATA_AVAILABLE);
+		return intentFilter;
 	}
 }

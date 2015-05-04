@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:choiceMode="multipleChoice"
         android:gravity="center|fill"
         android:horizontalSpacing="2dp"
-        android:choiceMode="multipleChoice"
         android:numColumns="2"
         android:padding="8dp"
         android:scrollbarStyle="insideOverlay"
@@ -20,5 +20,22 @@
         android:stretchMode="columnWidth"
         android:verticalSpacing="2dp" >
     </GridView>
+
+    <LinearLayout
+        android:id="@+id/startListenLay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/listenBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:text="开始监听" />
+    </LinearLayout>
 
 </LinearLayout>
