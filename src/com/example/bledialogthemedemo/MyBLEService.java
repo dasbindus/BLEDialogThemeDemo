@@ -40,14 +40,35 @@ public class MyBLEService extends Service {
 	public final static String EXTRA_DATA = "com.example.bluetooth.le.EXTRA_DATA";
 	public final static String EXTRA_DATA2 = "com.example.bluetooth.le.EXTRA_DATA2";
 	public final static String EXTRA_DATA3 = "com.example.bluetooth.le.EXTRA_DATA3";
+	public final static String EXTRA_DATA4 = "com.example.bluetooth.le.EXTRA_DATA4";
+	public final static String EXTRA_DATA5 = "com.example.bluetooth.le.EXTRA_DATA5";
+	public final static String EXTRA_DATA6 = "com.example.bluetooth.le.EXTRA_DATA6";
+	public final static String EXTRA_DATA7 = "com.example.bluetooth.le.EXTRA_DATA7";
 
-	public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID
-			.fromString(GattAttributes.HEART_RATE_MEASUREMENT);
-
+	/** 引擎转速的UUID */
 	public final static UUID UUID_RPM_DATA = UUID
 			.fromString(GattAttributes.RPM_DATA_UUID);
-	public final static UUID UUID_CAR_TEST_DATA = UUID
-			.fromString(GattAttributes.CAR_TEST_DATA);
+	/** 车辆时速的UUID */
+	public final static UUID UUID_SPD_DATA = UUID
+			.fromString(GattAttributes.SPD_DATA_UUID);
+	/** 空气流量速率的UUID */
+	public final static UUID UUID_MAF_DATA = UUID
+			.fromString(GattAttributes.MAF_DATA_UUID);
+	/** 冷却液温度的UUID */
+	public final static UUID UUID_ECT_DATA = UUID
+			.fromString(GattAttributes.ECT_DATA_UUID);
+	/** 邮箱压力的UUID */
+	public final static UUID UUID_MAP_DATA = UUID
+			.fromString(GattAttributes.MAP_DATA_UUID);
+	/** 氧传感器修正的UUID */
+	public final static UUID UUID_O1V_DATA = UUID
+			.fromString(GattAttributes.O1V_DATA_UUID);
+	/** 瞬时油耗的UUID */
+	public final static UUID UUID_FCR_DATA = UUID
+			.fromString(GattAttributes.FCR_DATA_UUID);
+	/** 故障吗DTC的UUID */
+	public final static UUID UUID_DTC_DATA = UUID
+			.fromString(GattAttributes.DTC_DATA_UUID);
 
 	/**
 	 * GATT事件的回调函数（例如蓝牙连接状态变化以及Service的发现操作）
@@ -143,41 +164,56 @@ public class MyBLEService extends Service {
 	private void broadcastUpdate(final String action,
 			final BluetoothGattCharacteristic characteristic) {
 		final Intent intent = new Intent(action);
+		final byte[] carData = characteristic.getValue();
+		UUID keyUuid = characteristic.getUuid();
 
-		// 处理SPD数据
-		if (UUID_CAR_TEST_DATA.equals(characteristic.getUuid())) {
-			final byte[] data = characteristic.getValue();
-			String carTestDataStr = new String(data);
-			// System.out.println("处理之前的数据：" + carTestDataStr);
-			// 处理接收数据为10进制（由于receiver接收String类型，所以使用"" + int）
-			intent.putExtra(EXTRA_DATA,
-					"" + Integer.valueOf(carTestDataStr, 16));
-		}
+		String carTestDataStr = new String(carData);
+		String[] params = carTestDataStr.split(" ");
+		int A = Integer.parseInt(params[0], 16);
+		int B = Integer.parseInt(params[1], 16);
+
 		// 处理RPM数据
-		if (UUID_RPM_DATA.equals(characteristic.getUuid())) {
-			final byte[] data = characteristic.getValue();
-			String carTestDataStr = new String(data);
-			// System.out.println("处理之前的数据：" + carTestDataStr);
-			String params[] = carTestDataStr.split(" ");
-			// System.out.println("A参数为：" + params[0] + " B参数为：" + params[1]);
-			int A = Integer.parseInt(params[0], 16);
-			int B = Integer.parseInt(params[1], 16);
-			// System.out.println((((A * 256) + B) / 4));
-			intent.putExtra(EXTRA_DATA2, "" + (((A * 256) + B) / 4));
-
-		} else {
-			// 若UUID不符合，则处理为HEX
-			final byte[] data = characteristic.getValue();
-			if (data != null && data.length > 0) {
-				final StringBuilder stringBuilder = new StringBuilder(
-						data.length);
-				for (byte byteChar : data)
-					stringBuilder.append(String.format("%02X ", byteChar));
-
-				intent.putExtra(EXTRA_DATA3, new String(data) + "\n"
-						+ stringBuilder.toString());
-			}
+		if (UUID_RPM_DATA.equals(keyUuid)) {
+			// 处理接收数据为10进制（由于receiver接收String类型，所以使用"" + int）
+			intent.putExtra(EXTRA_DATA, "" + (((A * 256) + B) / 4));
 		}
+		// 处理SPD数据
+		if (UUID_SPD_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA2, "" + A);
+		}
+		// 处理MAF数据
+		if (UUID_MAF_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA3, "" + (((A * 256) + B) / 100));
+		}
+		// 处理ECT数据
+		if (UUID_ECT_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA4, "" + (A - 40));
+		}
+		// 处理MAP数据
+		if (UUID_MAP_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA5, "" + A);
+		}
+		// 处理O1V数据
+		if (UUID_O1V_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA6, "" + ((B - 128) * 100 / 128));
+		}
+		// 处理FCR数据
+		if (UUID_FCR_DATA.equals(keyUuid)) {
+			intent.putExtra(EXTRA_DATA7, "" + (((A * 256) + B) / 20));
+		}
+
+		// else {
+		// // 若UUID不符合，则处理为HEX
+		// final byte[] data = characteristic.getValue();
+		// if (data != null && data.length > 0) {
+		// final StringBuilder stringBuilder = new StringBuilder(
+		// data.length);
+		// for (byte byteChar : data)
+		// stringBuilder.append(String.format("%02X ", byteChar));
+		// intent.putExtra(EXTRA_DATA3, new String(data) + "\n"
+		// + stringBuilder.toString());
+		// }
+		// }
 		sendBroadcast(intent);
 	}
 

@@ -117,8 +117,12 @@ public class BLEShowDataActivity extends Activity {
 						"GATT SERVICE DISCOVERED.", Toast.LENGTH_SHORT).show();
 			} else if (MyBLEService.ACTION_DATA_AVAILABLE.equals(action)) {
 				// 向values中赋予获取的值
-				values[0] = intent.getStringExtra(MyBLEService.EXTRA_DATA2);
-				values[1] = intent.getStringExtra(MyBLEService.EXTRA_DATA);
+				values[0] = intent.getStringExtra(MyBLEService.EXTRA_DATA);
+				values[1] = intent.getStringExtra(MyBLEService.EXTRA_DATA2);
+				values[2] = intent.getStringExtra(MyBLEService.EXTRA_DATA3);
+				values[3] = intent.getStringExtra(MyBLEService.EXTRA_DATA4);
+				values[4] = intent.getStringExtra(MyBLEService.EXTRA_DATA5);
+				values[5] = intent.getStringExtra(MyBLEService.EXTRA_DATA6);
 
 				// 循环获取GridView中所有Item，并且显示数据
 				for (int i = 0; i < values.length; i++) {
