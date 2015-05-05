@@ -49,15 +49,16 @@ public class BLEShowDataActivity extends Activity {
 	private boolean isListening = false;
 	private BluetoothGattCharacteristic mNotifyCharacteristic;
 
-	public UUID mWriteCmdUuid = UUID
-			.fromString("6a400002-b5a3-f393-e0a9-e50e24dcca9e");
-	public UUID mRpmUuid = UUID
-			.fromString("6a400003-b5a3-f393-e0a9-e50e24dcca9e");
-	public UUID mSpdUuid = UUID
-			.fromString("6a400004-b5a3-f393-e0a9-e50e24dcca9e");
+	public UUID mWriteCmdUuid = UUID.fromString(GattAttributes.WRITE_CMD_UUID);
+	// public UUID mRpmUuid = UUID.fromString(GattAttributes.RPM_DATA_UUID);
+	// public UUID mSpdUuid = UUID.fromString(GattAttributes.SPD_DATA_UUID);
 
-	private byte[] startCmd_test = { 0x01, (byte) 0xff };
-	private byte[] stopCmd = { (byte) 0xff, (byte) 0xff };
+	// ----------指令集-----------//
+	private byte[] startTestCmd_Passive = { 0x01, (byte) 0x7f };// 被动模式， 读取全部参数
+	private byte[] startTestCmd = { 0x01, (byte) 0xff }; // 主动方式，读取全部参数
+	private byte[] stopTestCmd = { (byte) 0xff, (byte) 0xff };
+	private byte[] getDtcCmd = { 0x02, (byte) 0xff };// 获取故障码指令
+	private byte[] clearDtcCmd = { 0x03, (byte) 0xff };// 清除故障码
 
 	/**
 	 * GridView的Item的check状态表
@@ -133,6 +134,7 @@ public class BLEShowDataActivity extends Activity {
 					} else {
 						valueTx.setText("--");
 					}
+
 				}
 			}
 		}
@@ -231,7 +233,7 @@ public class BLEShowDataActivity extends Activity {
 	 * 
 	 * @param uuid
 	 */
-	private void writeCmd(UUID uuid, byte cmd[]) {
+	private void writeCmd(UUID uuid, byte[] cmd) {
 		MyBLEService mBleService = new MyBLEService();
 		BluetoothGattService service = mBleService.getSupportedGattServices()
 				.get(2);

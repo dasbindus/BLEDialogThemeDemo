@@ -6,6 +6,8 @@ public class GattAttributes {
 	/** 根据实际的UUID查找对应的Service名称 */
 	private static HashMap<String, String> attributes = new HashMap<String, String>();
 
+	/** 写指令的UUID */
+	public static String WRITE_CMD_UUID = "6a400002-b5a3-f393-e0a9-e50e24dcca9e";
 	/** 引擎转速的UUID */
 	public static String RPM_DATA_UUID = "6a400003-b5a3-f393-e0a9-e50e24dcca9e";
 	/** 车辆时速的UUID */
