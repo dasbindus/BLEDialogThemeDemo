@@ -19,6 +19,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+/*
+ * 记得修改utf-8的编码
+ */
+
 public class MyBLEService extends Service {
 	private final static String TAG = MyBLEService.class.getSimpleName();
 
