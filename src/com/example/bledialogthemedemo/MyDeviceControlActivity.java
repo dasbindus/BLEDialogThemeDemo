@@ -72,6 +72,8 @@ public class MyDeviceControlActivity extends Activity {
 	private Handler mHandler;
 	private byte[] startCmd_test = { 0x01, (byte) 0xff };
 	private byte[] stopCmd = { (byte) 0xff, (byte) 0xff };
+	
+	
 	/**
 	 * 管理Service的生命周期
 	 */
@@ -139,10 +141,6 @@ public class MyDeviceControlActivity extends Activity {
 				 */
 				Intent bleDataIntent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putString("BLEData1",
-						intent.getStringExtra(MyBLEService.EXTRA_DATA));
-				bundle.putString("BLEData2",
-						intent.getStringExtra(MyBLEService.EXTRA_DATA2));
 				bundle.putBoolean("connectStat", mConnected);
 				bleDataIntent.putExtras(bundle);
 				bleDataIntent.setClass(MyDeviceControlActivity.this,

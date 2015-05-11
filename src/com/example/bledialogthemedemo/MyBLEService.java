@@ -234,16 +234,16 @@ public class MyBLEService extends Service {
 			intent.putExtra(EXTRA_DATA7, "" + (((A * 256) + B) / 20));
 			System.out.println("FCR: " + carTestDataStr);
 		} else {
-			// 若UUID不符合，则处理为HEX
+			// 若UUID不符合，则处理为HEX, （处理后的结果不发广播！）
 			final byte[] data = characteristic.getValue();
 			if (data != null && data.length > 0) {
 				final StringBuilder stringBuilder = new StringBuilder(
 						data.length);
 				for (byte byteChar : data)
 					stringBuilder.append(String.format("%02X ", byteChar));
-				intent.putExtra(EXTRA_DATA3, new String(data) + "\n"
-						+ stringBuilder.toString());
+				Log.e(TAG, (new String(data) + "\n" + stringBuilder.toString()));
 			}
+
 		}
 		sendBroadcast(intent);
 	}

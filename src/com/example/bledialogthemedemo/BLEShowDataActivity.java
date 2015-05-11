@@ -11,11 +11,13 @@ import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,12 +31,21 @@ import android.widget.Toast;
 
 public class BLEShowDataActivity extends Activity {
 
+	public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+	public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+	// ------ UI控件 --------//
 	private Button listenBtn;
 	private GridView gridView;
 	private List<Map<String, Object>> listItems;
 	private ImageView selectPic;
 	private TextView valueTx;
 
+	private MyBLEService mBleService;
+	// private String mDeviceName;
+	private String mDeviceAddress;
+
+	// -------- 参数显示 -----------//
 	private String[] names = new String[] { "引擎转速: ", "车辆时速: ", "空气流量速率: ",
 			"冷却液温度: ", "油箱压力: ", "氧传感器修正: " };
 	private String[] values = new String[6];
@@ -47,6 +58,8 @@ public class BLEShowDataActivity extends Activity {
 
 	private boolean mConnected = false;
 	private boolean isListening = false;
+
+	private ArrayList<BluetoothGattCharacteristic> mGattCharacteristics = new ArrayList<BluetoothGattCharacteristic>();
 	private BluetoothGattCharacteristic mNotifyCharacteristic;
 
 	public UUID mWriteCmdUuid = UUID.fromString(GattAttributes.WRITE_CMD_UUID);
@@ -98,6 +111,30 @@ public class BLEShowDataActivity extends Activity {
 	}
 
 	/**
+	 * 管理Service的生命周期
+	 */
+	private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName componentName,
+				IBinder service) {
+			mBleService = ((MyBLEService.LocalBinder) service).getService();
+			if (!mBleService.initialize()) {
+				Log.e("BLEShowDataActivity", "Unable to initialize Bluetooth");
+				finish();
+			}
+			// Automatically connects to the device upon successful start-up
+			// initialization.
+			mBleService.connect(mDeviceAddress);
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName componentName) {
+			mBleService = null;
+		}
+	};
+
+	/**
 	 * 广播接收
 	 */
 	private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
@@ -129,6 +166,7 @@ public class BLEShowDataActivity extends Activity {
 				for (int i = 0; i < values.length; i++) {
 					valueTx = (TextView) gridView.getChildAt(i).findViewById(
 							R.id.itemValueTx);
+					// System.out.println("连接状态为：" + mConnected);
 					if (mConnected && !checkStatLookUp(i)) {
 						displayData(valueTx, values[i]);
 					} else {
@@ -142,9 +180,15 @@ public class BLEShowDataActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_bledata);
+
+		// final Intent intent = getIntent();
+		// mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+		// mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
+		Intent gattServiceIntent = new Intent(this, MyBLEService.class);
+		bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
 		listenBtn = (Button) findViewById(R.id.listenBtn);
 		listenBtn.setOnClickListener(new OnClickListener() {
@@ -167,8 +211,6 @@ public class BLEShowDataActivity extends Activity {
 		// 获取MyDeviceControlActivity传递的数据
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
-		String data1 = bundle.getString("BLEData1");
-		String data2 = bundle.getString("BLEData2");
 		mConnected = bundle.getBoolean("connectStat");
 
 		// ------------//
@@ -195,22 +237,44 @@ public class BLEShowDataActivity extends Activity {
 				selectPic = (ImageView) v.findViewById(R.id.itemCheckedPic);
 				valueTx = (TextView) v.findViewById(R.id.itemValueTx);
 
-				if (!checkStatLookUp(position)) {
-					Log.e("onItemClick", "选中,关闭Notif");
-					selectPic.setImageDrawable(getResources().getDrawable(
-							R.drawable.uncheck_mark));
-					v.setBackgroundResource(R.drawable.shape_corners_all_dark);
-					valueTx.setText("--");// 仅测试用
-					checkStatus.put(position, true);
-					// TODO 设置BLE的Notification状态
-				} else {
-					Log.e("onItemClick", "取消选中,打开Notif");
-					selectPic.setImageDrawable(getResources().getDrawable(
-							R.drawable.check_mark));
-					v.setBackgroundResource(R.drawable.shape_corners_all);
-					valueTx.setText(values[position]);// 仅测试用
-					checkStatus.put(position, false);
-					// TODO 设置BLE的Notification状态
+				BluetoothGattService gattService = mBleService
+						.getSupportedGattServices().get(2);
+				mGattCharacteristics = (ArrayList<BluetoothGattCharacteristic>) gattService
+						.getCharacteristics();
+				if (mGattCharacteristics != null) {
+					// 第一个char为写指令的char，因此开启notif的char应该是position+1
+					final BluetoothGattCharacteristic characteristic = mGattCharacteristics
+							.get(position + 1);
+
+					if (!checkStatLookUp(position)) {
+						Log.e("onItemClick", "选中,关闭Notif");
+						selectPic.setImageDrawable(getResources().getDrawable(
+								R.drawable.uncheck_mark));
+						v.setBackgroundResource(R.drawable.shape_corners_all_dark);
+						valueTx.setText("--");// 仅测试用
+						checkStatus.put(position, true);
+
+						// TODO 设置BLE的Notification状态
+						if (mNotifyCharacteristic != null) {
+							mBleService.setCharacteristicNotification(
+									mNotifyCharacteristic, false);
+							mNotifyCharacteristic = null;
+						}
+						mBleService.readCharacteristic(characteristic);
+
+					} else {
+						Log.e("onItemClick", "取消选中,打开Notif");
+						selectPic.setImageDrawable(getResources().getDrawable(
+								R.drawable.check_mark));
+						v.setBackgroundResource(R.drawable.shape_corners_all);
+						valueTx.setText(values[position]);// 仅测试用
+						checkStatus.put(position, false);
+
+						// TODO 设置BLE的Notification状态
+						mNotifyCharacteristic = characteristic;
+						mBleService.setCharacteristicNotification(
+								characteristic, true);
+					}
 				}
 			}
 		});
@@ -220,12 +284,23 @@ public class BLEShowDataActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+		if (mBleService != null) {
+			final boolean result = mBleService.connect(mDeviceAddress);
+			Log.d("BLEShowDataActivity", "Connect request result=" + result);
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		unregisterReceiver(mGattUpdateReceiver);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unbindService(mServiceConnection);
+		mBleService = null;
 	}
 
 	/**

@@ -24,7 +24,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:paddingRight="5dp"
-        android:src="@drawable/ic_launcher"
+        android:src="@drawable/check_mark"
         android:paddingTop="5dp"/>
 
     <LinearLayout
