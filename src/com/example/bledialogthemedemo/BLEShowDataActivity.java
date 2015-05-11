@@ -149,6 +149,7 @@ public class BLEShowDataActivity extends Activity {
 				mConnected = false;
 				Toast.makeText(BLEShowDataActivity.this, "蓝牙已断开！",
 						Toast.LENGTH_SHORT).show();
+				listenBtn.setText("开始监听");
 			} else if (MyBLEService.ACTION_GATT_SERVICES_DISCOVERED
 					.equals(action)) {
 				Toast.makeText(BLEShowDataActivity.this,
@@ -197,11 +198,11 @@ public class BLEShowDataActivity extends Activity {
 				// TODO 结合链接状态判断是否开始监听
 				if (!isListening) {
 					listenBtn.setText("停止监听");
-					// writeCmd(mWriteCmdUuid, startCmd_test);
+					writeCmd(mWriteCmdUuid, startTestCmd);
 					isListening = true;
 				} else {
 					listenBtn.setText("开始监听");
-					// writeCmd(mWriteCmdUuid, stopCmd);
+					writeCmd(mWriteCmdUuid, stopTestCmd);
 					isListening = false;
 				}
 			}
@@ -242,7 +243,7 @@ public class BLEShowDataActivity extends Activity {
 				mGattCharacteristics = (ArrayList<BluetoothGattCharacteristic>) gattService
 						.getCharacteristics();
 				if (mGattCharacteristics != null) {
-					// 第一个char为写指令的char，因此开启notif的char应该是position+1
+					// 第一个char为写指令的char，因此开启Notification的char应该是position+1
 					final BluetoothGattCharacteristic characteristic = mGattCharacteristics
 							.get(position + 1);
 
@@ -267,11 +268,10 @@ public class BLEShowDataActivity extends Activity {
 						selectPic.setImageDrawable(getResources().getDrawable(
 								R.drawable.check_mark));
 						v.setBackgroundResource(R.drawable.shape_corners_all);
-						valueTx.setText(values[position]);// 仅测试用
+						// valueTx.setText(values[position]);// 仅测试用
 						checkStatus.put(position, false);
 
 						// TODO 设置BLE的Notification状态
-						mNotifyCharacteristic = characteristic;
 						mBleService.setCharacteristicNotification(
 								characteristic, true);
 					}
@@ -309,7 +309,6 @@ public class BLEShowDataActivity extends Activity {
 	 * @param uuid
 	 */
 	private void writeCmd(UUID uuid, byte[] cmd) {
-		MyBLEService mBleService = new MyBLEService();
 		BluetoothGattService service = mBleService.getSupportedGattServices()
 				.get(2);
 		BluetoothGattCharacteristic characteristic = service
