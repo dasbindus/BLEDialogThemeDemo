@@ -68,7 +68,7 @@ public class BLEShowDataActivity extends Activity {
 
 	// ----------指令集-----------//
 	private byte[] startTestCmd_Passive = { 0x01, (byte) 0x7f };// 被动模式， 读取全部参数
-	private byte[] startTestCmd = { 0x01, (byte) 0xff }; // 主动方式，读取全部参数
+	private byte[] startTestCmd_Active = { 0x01, (byte) 0xff }; // 主动方式，读取全部参数
 	private byte[] stopTestCmd = { (byte) 0xff, (byte) 0xff };
 	private byte[] getDtcCmd = { 0x02, (byte) 0xff };// 获取故障码指令
 	private byte[] clearDtcCmd = { 0x03, (byte) 0xff };// 清除故障码
@@ -198,11 +198,11 @@ public class BLEShowDataActivity extends Activity {
 				// TODO 结合链接状态判断是否开始监听
 				if (!isListening) {
 					listenBtn.setText("停止监听");
-					writeCmd(mWriteCmdUuid, startTestCmd);
+					writeCmd(mWriteCmdUuid, startTestCmd_Active, 2);
 					isListening = true;
 				} else {
 					listenBtn.setText("开始监听");
-					writeCmd(mWriteCmdUuid, stopTestCmd);
+					writeCmd(mWriteCmdUuid, stopTestCmd, 2);
 					isListening = false;
 				}
 			}
@@ -304,13 +304,13 @@ public class BLEShowDataActivity extends Activity {
 	}
 
 	/**
-	 * 向指定UUID中写指令
+	 * 向指定的index的service的指定UUID的Characteristic中写指令(本项目中写指令的service对应index为2)
 	 * 
 	 * @param uuid
 	 */
-	private void writeCmd(UUID uuid, byte[] cmd) {
+	private void writeCmd(UUID uuid, byte[] cmd, int serviceIndex) {
 		BluetoothGattService service = mBleService.getSupportedGattServices()
-				.get(2);
+				.get(serviceIndex);
 		BluetoothGattCharacteristic characteristic = service
 				.getCharacteristic(uuid);
 		characteristic.setValue(cmd);
